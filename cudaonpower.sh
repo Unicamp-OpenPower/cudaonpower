@@ -37,9 +37,10 @@ install_cuda(){
         sudo apt-get -f install
         sudo apt-get update
         sudo apt-get install -y cuda
-        echo 'export PATH=$PATH:/usr/local/cuda-8.0/bin' | sudo tee
-        echo /usr/local/cuda-8.0/lib64 | sudo tee /etc/ld.so.conf.d/cuda-8-0.conf
-        sudo ldconfig
+        export PATH=$PATH:/usr/local/cuda-8.0/bin
+        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-8.0/lib64
+        echo "PATH=$PATH:/usr/local/cuda-8.0/bin
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-8.0/lib64" | sudo tee /etc/profile.d/cuda-bin-path.sh
 }
 
 post_install(){
