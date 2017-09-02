@@ -13,8 +13,7 @@ limitations under the License.
 '
 
 INSTALL_DIR=~/cuda_install
-CUDA_VERSION=8.0
-CUDA_PKG=cuda-repo-ubuntu1604-8-0-local-ga2_8.0.54-1_ppc64el-deb
+CUDA_PKG=cuda-repo-ubuntu1604_8.0.61-1_ppc64el.deb
 
 error() {
         printf '\E[31m'; echo "$@"; printf '\E[0m'
@@ -32,7 +31,7 @@ install_cuda(){
         cd $INSTALL_DIR
         sudo lspci | grep -i nvidia
         sudo apt-get install -y build-essential
-        wget https://developer.nvidia.com/compute/cuda/$CUDA_VERSION/prod/local_installers/$CUDA_PKG
+        wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/ppc64el/$CUDA_PKG
         sudo dpkg -i ./$CUDA_PKG
         sudo apt-get -f install
         sudo apt-get update
@@ -41,6 +40,7 @@ install_cuda(){
         export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-8.0/lib64
         echo "PATH=$PATH:/usr/local/cuda-8.0/bin
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-8.0/lib64" | sudo tee /etc/profile.d/cuda-bin-path.sh
+        rm $CUDA_PKG
 }
 
 post_install(){
@@ -58,16 +58,19 @@ run_sample() {
 }
 
 reboot() {
-        read -p "Reboot your system now to complete the installation (y/n)? " -n 1 -r
-        if [[ $REPLY =~ ^[Yy]$ ]]
-        then
-                sudo reboot
-        fi
+        while true; do
+                read -p "Reboot your system now to complete the installation? [Y/n] " -r
+                case $REPLY in
+                        [Yy] ) sudo reboot;;
+                        [Nn] ) exit;;
+                        * ) continue;;
+                esac
+        done
 }
 
 # read user option
 if [ $# -ne 1 ]; then
-        echo "usage: p8cudainstaller [ install | post_install ]"
+        echo "usage: `basename ${BASH_SOURCE[0]}` [ install | post_install ]"
         exit 1
 fi
 
@@ -75,7 +78,7 @@ fi
 if [[ "$1" == "install" ]]; then
         is_admin
         install_cuda
-        echo "When the reboot is completed, run p8cudainstaller.sh post_install."
+        echo "When the reboot is completed, run `basename ${BASH_SOURCE[0]}` post_install."
         echo
         reboot
 elif [[ "$1" == "post_install" ]]; then
@@ -83,5 +86,5 @@ elif [[ "$1" == "post_install" ]]; then
         run_sample
 else
 	echo "Please, enter the correct command."
-	echo "usage: p8cudainstaller [ install | post_install ]"
+	echo "usage: `basename ${BASH_SOURCE[0]}` [ install | post_install ]"
 fi
