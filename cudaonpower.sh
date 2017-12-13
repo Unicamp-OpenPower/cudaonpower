@@ -13,7 +13,7 @@ limitations under the License.
 '
 
 INSTALL_DIR=~/cuda_install
-CUDA_PKG=cuda-repo-ubuntu1604_8.0.61-1_ppc64el.deb
+CUDA_PKG=cuda-repo-ubuntu1604-9-1-local_9.1.85-1_ppc64el
 
 error() {
         printf '\E[31m'; echo "$@"; printf '\E[0m'
@@ -30,16 +30,16 @@ install_cuda(){
         mkdir $INSTALL_DIR
         cd $INSTALL_DIR
         sudo lspci | grep -i nvidia
-        sudo apt-get install -y build-essential
-        wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/ppc64el/$CUDA_PKG
-        sudo dpkg -i ./$CUDA_PKG
-        sudo apt-get -f install
+        sudo apt-get install -y build-essential linux-headers-$(uname -r)
+        wget https://developer.nvidia.com/compute/cuda/9.1/Prod/local_installers/$CUDA_PKG
+        sudo dpkg -i $CUDA_PKG
+        sudo apt-key add /var/cuda-repo-9-1-local/7fa2af80.pub
         sudo apt-get update
         sudo apt-get install -y cuda
-        export PATH=$PATH:/usr/local/cuda-8.0/bin
-        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-8.0/lib64
-        echo "PATH=$PATH:/usr/local/cuda-8.0/bin
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-8.0/lib64" | sudo tee /etc/profile.d/cuda-bin-path.sh
+        export PATH=$PATH:/usr/local/cuda-9.1/bin
+        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-9.1/lib64
+        echo "PATH=\$PATH:/usr/local/cuda-9.1/bin
+        LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:/usr/local/cuda-9.1/lib64" | sudo tee /etc/profile.d/cuda-bin-path.sh
         rm $CUDA_PKG
 }
 
@@ -85,6 +85,6 @@ elif [[ "$1" == "post_install" ]]; then
         post_install
         run_sample
 else
-	echo "Please, enter the correct command."
-	echo "usage: `basename ${BASH_SOURCE[0]}` [ install | post_install ]"
+        echo "Please, enter the correct command."
+        echo "usage: `basename ${BASH_SOURCE[0]}` [ install | post_install ]"
 fi
